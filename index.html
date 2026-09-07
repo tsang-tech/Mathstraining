@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小學數學基礎運算訓練器</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f4f7f6; margin: 0; padding: 16px; color: #333; }
+    .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h1 { text-align: center; font-size: 1.4rem; color: #2c3e50; margin-top: 0; }
+    label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 6px; font-size: 0.95rem; }
+    select, button { width: 100%; padding: 12px; font-size: 1rem; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; background: white; }
+    button { background-color: #3498db; color: white; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    button:active { background-color: #2980b9; }
+    .btn-secondary { background-color: #2ecc71; margin-top: 8px; }
+    .btn-secondary:active { background-color: #27ae60; }
+    .question-card { background: #f8f9fa; border-left: 4px solid #3498db; padding: 12px 16px; margin: 12px 0; border-radius: 4px; }
+    .q-title { font-size: 1.1rem; font-weight: bold; }
+    .q-ans { font-size: 1.05rem; color: #e74c3c; font-weight: bold; margin-top: 6px; display: none; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>小學數學基礎運算訓練</h1>
+
+  <label for="gradeSelect">選擇年級：</label>
+  <select id="gradeSelect" onchange="updateTopics()">
+    <option value="">-- 請選擇年級 --</option>
+    <option value="p1">小一 (Primary 1)</option>
+    <option value="p2">小二 (Primary 2)</option>
+    <option value="p3">小三 (Primary 3)</option>
+    <option value="p4">小四 (Primary 4)</option>
+    <option value="p5">小五 (Primary 5)</option>
+    <option value="p6">小六 (Primary 6)</option>
+  </select>
+
+  <label for="topicSelect">選擇課題：</label>
+  <select id="topicSelect" onchange="generateQuestions()" disabled>
+    <option value="">-- 請先選擇年級 --</option>
+  </select>
+
+  <div id="quizArea" class="hidden">
+    <div id="questionsContainer"></div>
+    
+    <button onclick="toggleAnswers()" id="ansBtn">顯示答案</button>
+    <button class="btn-secondary" onclick="generateQuestions()">換一組新題目</button>
+  </div>
+</div>
+
+<script>
+  const topicsData = {
+    p1: [
+      { id: 'p1_add20', name: '20以內加法' },
+      { id: 'p1_sub20', name: '20以內減法' },
+      { id: 'p1_mix20', name: '20以內加減混合' }
+    ],
+    p2: [
+      { id: 'p2_mul', name: '表內乘法 (2-9的乘法)' },
+      { id: 'p2_addsub100', name: '100以內加減法' },
+      { id: 'p2_twoStep', name: '兩步混合運算' }
+    ],
+    p3: [
+      { id: 'p3_div', name: '表內除法 (無餘數)' },
+      { id: 'p3_addsub3', name: '三位數加減法' },
+      { id: 'p3_mixMulDiv', name: '乘除混合運算' }
+    ],
+    p4: [
+      { id: 'p4_fourOps', name: '四則混合運算 (含括號)' },
+      { id: 'p4_fracAdd', name: '同分母分數加減法' },
+      { id: 'p4_decAdd', name: '一位小數加減法' }
+    ],
+    p5: [
+      { id: 'p5_fracMix', name: '異分母分數加減法' },
+      { id: 'p5_decMul', name: '小數乘法' },
+      { id: 'p5_percent', name: '基本百分率計算' }
+    ],
+    p6: [
+      { id: 'p6_fracDiv', name: '分數除法' },
+      { id: 'p6_equation', name: '簡易一元一次方程' },
+      { id: 'p6_percentApp', name: '百分率應用 (折扣/折讓)' }
+    ]
+  };
+
+  let currentQuestions = [];
+  let showAns = false;
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+  }
+
+  function updateTopics() {
+    const grade = document.getElementById('gradeSelect').value;
+    const topicSelect = document.getElementById('topicSelect');
+    topicSelect.innerHTML = '<option value="">-- 請選擇課題 --</option>';
+    document.getElementById('quizArea').classList.add('hidden');
+
+    if (!grade) {
+      topicSelect.disabled = true;
+      return;
+    }
+
+    topicsData[grade].forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name;
+      topicSelect.appendChild(opt);
+    });
+
+    topicSelect.disabled = false;
+  }
+
+  function createQuestion(topicId) {
+    let q = '', a = '';
+    
+    switch (topicId) {
+      // 小一
+      case 'p1_add20': {
+        let n1 = rand(1, 10), n2 = rand(1, 9);
+        q = `${n1} + ${n2} = ?`;
+        a = `${n1 + n2}`;
+        break;
+      }
+      case 'p1_sub20': {
+        let n1 = rand(5, 20), n2 = rand(1, n1);
+        q = `${n1} - ${n2} = ?`;
+        a = `${n1 - n2}`;
+        break;
+      }
+      case 'p1_mix20': {
+        let n1 = rand(5, 12), n2 = rand(1, 5), n3 = rand(1, 5);
+        q = `${n1} + ${n2} - ${n3} = ?`;
+        a = `${n1 + n2 - n3}`;
+        break;
+      }
+
+      // 小二
+      case 'p2_mul': {
+        let n1 = rand(2, 9), n2 = rand(1, 9);
+        q = `${n1} × ${n2} = ?`;
+        a = `${n1 * n2}`;
+        break;
+      }
+      case 'p2_addsub100': {
+        let n1 = rand(20, 80), n2 = rand(10, 40);
+        let isAdd = Math.random() > 0.5;
+        if (isAdd) {
+          q = `${n1} + ${n2} = ?`;
+          a = `${n1 + n2}`;
+        } else {
+          q = `${n1} - ${n2} = ?`;
+          a = `${n1 - n2}`;
+        }
+        break;
+      }
+      case 'p2_twoStep': {
+        let n1 = rand(10, 30), n2 = rand(2, 9), n3 = rand(1, 9);
+        q = `${n1} + ${n2} × ${n3} = ?`;
+        a = `${n1 + n2 * n3}`;
+        break;
+      }
+
+      // 小三
+      case 'p3_div': {
+        let ans = rand(2, 9), divisor = rand(2, 9);
+        let dividend = ans * divisor;
+        q = `${dividend} ÷ ${divisor} = ?`;
+        a = `${ans}`;
+        break;
+      }
+      case 'p3_addsub3': {
+        let n1 = rand(100, 800), n2 = rand(100, 800);
+        q = `${n1} + ${n2} = ?`;
+        a = `${n1 + n2}`;
+        break;
+      }
+      case 'p3_mixMulDiv': {
+        let b = rand(2, 5), c = rand(2, 5);
+        let aVal = b * rand(2, 6);
+        q = `${aVal} ÷ ${b} × ${c} = ?`;
+        a = `${(aVal / b) * c}`;
+        break;
+      }
+
+      // 小四
+      case 'p4_fourOps': {
+        let n1 = rand(10, 50), n2 = rand(2, 10), n3 = rand(2, 5);
+        q = `(${n1} + ${n2}) × ${n3} = ?`;
+        a = `${(n1 + n2) * n3}`;
+        break;
+      }
+      case 'p4_fracAdd': {
+        let den = rand(5, 12);
+        let num1 = rand(1, den - 2), num2 = rand(1, den - num1);
+        q = `${num1}/${den} + ${num2}/${den} = ?`;
+        let resNum = num1 + num2;
+        let g = gcd(resNum, den);
+        a = (resNum / g === den / g) ? '1' : `${resNum / g}/${den / g}`;
+        break;
+      }
+      case 'p4_decAdd': {
+        let n1 = (rand(10, 99) / 10).toFixed(1);
+        let n2 = (rand(10, 99) / 10).toFixed(1);
+        q = `${n1} + ${n2} = ?`;
+        a = (parseFloat(n1) + parseFloat(n2)).toFixed(1);
+        break;
+      }
+
+      // 小五
+      case 'p5_fracMix': {
+        q = `1/2 + 1/4 = ?`;
+        a = `3/4`;
+        if (Math.random() > 0.5) {
+          q = `2/3 - 1/6 = ?`;
+          a = `1/2`;
+        }
+        break;
+      }
+      case 'p5_decMul': {
+        let n1 = (rand(11, 49) / 10).toFixed(1);
+        let n2 = rand(2, 8);
+        q = `${n1} × ${n2} = ?`;
+        a = (parseFloat(n1) * n2).toFixed(1);
+        break;
+      }
+      case 'p5_percent': {
+        let base = rand(1, 20) * 10;
+        let rate = rand(1, 9) * 10;
+        q = `${base} 的 ${rate}% 是多少？`;
+        a = `${base * (rate / 100)}`;
+        break;
+      }
+
+      // 小六
+      case 'p6_fracDiv': {
+        let n1 = rand(1, 3), d1 = 4;
+        let n2 = rand(1, 2), d2 = 2;
+        q = `${n1}/${d1} ÷ ${n2}/${d2} = ?`;
+        let ansNum = n1 * d2;
+        let ansDen = d1 * n2;
+        let g = gcd(ansNum, ansDen);
+        a = `${ansNum/g}/${ansDen/g}`;
+        break;
+      }
+      case 'p6_equation': {
+        let x = rand(2, 9), k = rand(2, 5), b = rand(1, 10);
+        let total = k * x + b;
+        q = `解方程：${k}y + ${b} = ${total} ，y = ?`;
+        a = `y = ${x}`;
+        break;
+      }
+      case 'p6_percentApp': {
+        let price = rand(1, 10) * 100;
+        let discount = rand(7, 9);
+        q = `原價 $${price} 的貨品打 ${discount} 折後，售價是多少？`;
+        a = `$${price * (discount / 10)}`;
+        break;
+      }
+    }
+    return { question: q, answer: a };
+  }
+
+  function generateQuestions() {
+    const topicId = document.getElementById('topicSelect').value;
+    if (!topicId) return;
+
+    currentQuestions = [];
+    for (let i = 0; i < 3; i++) {
+      currentQuestions.push(createQuestion(topicId));
+    }
+
+    showAns = false;
+    document.getElementById('ansBtn').textContent = '顯示答案';
+    renderQuestions();
+    document.getElementById('quizArea').classList.remove('hidden');
+  }
+
+  function renderQuestions() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    currentQuestions.forEach((qObj, index) => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML = `
+        <div class="q-title">題目 ${index + 1}：${qObj.question}</div>
+        <div class="q-ans" style="display: ${showAns ? 'block' : 'none'};">答案：${qObj.answer}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleAnswers() {
+    showAns = !showAns;
+    document.getElementById('ansBtn').textContent = showAns ? '隱藏答案' : '顯示答案';
+    renderQuestions();
+  }
+</script>
+
+</body>
+</html>
