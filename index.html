@@ -72,7 +72,9 @@
     p4: [
       { id: 'p4_fourOps', name: '四則混合運算 (含括號)' },
       { id: 'p4_fracAdd', name: '同分母分數加減法' },
-      { id: 'p4_decAdd', name: '一位小數加減法' }
+      { id: 'p4_decAdd', name: '一位小數加減法' },
+      { id: 'p4_mul2x2', name: '兩位數乘兩位數' },
+      { id: 'p4_mul3x2', name: '三位數乘兩位數' }
     ],
     p5: [
       { id: 'p5_fracMix', name: '異分母分數加減法' },
@@ -177,9 +179,16 @@
         break;
       }
       case 'p3_addsub3': {
-        let n1 = rand(100, 800), n2 = rand(100, 800);
-        q = `${n1} + ${n2} = ?`;
-        a = `${n1 + n2}`;
+        let isAdd = Math.random() > 0.5;
+        if (isAdd) {
+          let n1 = rand(100, 800), n2 = rand(100, 800);
+          q = `${n1} + ${n2} = ?`;
+          a = `${n1 + n2}`;
+        } else {
+          let n1 = rand(200, 999), n2 = rand(100, n1);
+          q = `${n1} - ${n2} = ?`;
+          a = `${n1 - n2}`;
+        }
         break;
       }
       case 'p3_mixMulDiv': {
@@ -211,6 +220,18 @@
         let n2 = (rand(10, 99) / 10).toFixed(1);
         q = `${n1} + ${n2} = ?`;
         a = (parseFloat(n1) + parseFloat(n2)).toFixed(1);
+        break;
+      }
+      case 'p4_mul2x2': {
+        let n1 = rand(10, 99), n2 = rand(10, 99);
+        q = `${n1} × ${n2} = ?`;
+        a = `${n1 * n2}`;
+        break;
+      }
+      case 'p4_mul3x2': {
+        let n1 = rand(100, 999), n2 = rand(10, 99);
+        q = `${n1} × ${n2} = ?`;
+        a = `${n1 * n2}`;
         break;
       }
 
