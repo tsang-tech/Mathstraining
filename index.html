@@ -67,6 +67,8 @@
     p3: [
       { id: 'p3_div', name: '表內除法 (無餘數)' },
       { id: 'p3_addsub3', name: '三位數加減法' },
+      { id: 'p3_mul2x1', name: '兩位數乘一位數' },
+      { id: 'p3_div3x2', name: '三位數除以兩位數' },
       { id: 'p3_mixMulDiv', name: '乘除混合運算' }
     ],
     p4: [
@@ -189,6 +191,20 @@
           q = `${n1} - ${n2} = ?`;
           a = `${n1 - n2}`;
         }
+        break;
+      }
+      case 'p3_mul2x1': {
+        let n1 = rand(10, 99), n2 = rand(2, 9);
+        q = `${n1} × ${n2} = ?`;
+        a = `${n1 * n2}`;
+        break;
+      }
+      case 'p3_div3x2': {
+        let divisor = rand(11, 35);
+        let ans = rand(10, 25);
+        let dividend = divisor * ans;
+        q = `${dividend} ÷ ${divisor} = ?`;
+        a = `${ans}`;
         break;
       }
       case 'p3_mixMulDiv': {
