@@ -69,6 +69,8 @@
       { id: 'p3_addsub3', name: '三位數加減法' },
       { id: 'p3_mul2x1', name: '兩位數乘一位數' },
       { id: 'p3_mul3x1', name: '三位數乘一位數' },
+      { id: 'p3_div2x1', name: '兩位數除以一位數 (可有餘數)' },
+      { id: 'p3_div3x1', name: '三位數除以一位數 (可有餘數)' },
       { id: 'p3_mixMulDiv', name: '乘除混合運算' }
     ],
     p4: [
@@ -204,6 +206,25 @@
         let n1 = rand(100, 999), n2 = rand(2, 9);
         q = `${n1} × ${n2} = ?`;
         a = `${n1 * n2}`;
+        break;
+      }
+      case 'p3_div2x1': {
+        let dividend = rand(10, 99);
+        let divisor = rand(2, 9);
+        q = `${dividend} ÷ ${divisor} = ?`;
+        let quotient = Math.floor(dividend / divisor);
+        let remainder = dividend % divisor;
+        // 如果餘數為0，只顯示商；有餘數則顯示「商 ... 餘數」
+        a = remainder === 0 ? `${quotient}` : `${quotient} ... ${remainder}`;
+        break;
+      }
+      case 'p3_div3x1': {
+        let dividend = rand(100, 999);
+        let divisor = rand(2, 9);
+        q = `${dividend} ÷ ${divisor} = ?`;
+        let quotient = Math.floor(dividend / divisor);
+        let remainder = dividend % divisor;
+        a = remainder === 0 ? `${quotient}` : `${quotient} ... ${remainder}`;
         break;
       }
       case 'p3_mixMulDiv': {
