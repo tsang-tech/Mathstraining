@@ -79,7 +79,7 @@
       { id: 'p4_decAdd', name: '一位小數加減法' },
       { id: 'p4_mul2x2', name: '兩位數乘兩位數' },
       { id: 'p4_mul3x2', name: '三位數乘兩位數' },
-      { id: 'p4_div3x2', name: '三位數除以兩位數' }
+      { id: 'p4_div3x2', name: '三位數除以兩位數 (可有餘數)' }
     ],
     p5: [
       { id: 'p5_fracMix', name: '異分母分數加減法' },
@@ -214,7 +214,6 @@
         q = `${dividend} ÷ ${divisor} = ?`;
         let quotient = Math.floor(dividend / divisor);
         let remainder = dividend % divisor;
-        // 如果餘數為0，只顯示商；有餘數則顯示「商 ... 餘數」
         a = remainder === 0 ? `${quotient}` : `${quotient} ... ${remainder}`;
         break;
       }
@@ -271,11 +270,12 @@
         break;
       }
       case 'p4_div3x2': {
-        let divisor = rand(11, 35);
-        let ans = rand(10, 25);
-        let dividend = divisor * ans;
+        let dividend = rand(100, 999);
+        let divisor = rand(10, 99);
         q = `${dividend} ÷ ${divisor} = ?`;
-        a = `${ans}`;
+        let quotient = Math.floor(dividend / divisor);
+        let remainder = dividend % divisor;
+        a = remainder === 0 ? `${quotient}` : `${quotient} ... ${remainder}`;
         break;
       }
 
